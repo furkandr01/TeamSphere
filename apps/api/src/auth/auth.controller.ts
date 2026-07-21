@@ -13,6 +13,7 @@ import { RefreshDto } from './dto/refresh.dto';
 import { JwtAuthGuard } from './guards/jwt-auth.guard';
 import { RolesGuard } from './guards/roles.guard';
 import { Roles } from './decorators/roles.decorator';
+import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
@@ -48,5 +49,19 @@ export class AuthController {
     @Request() req: { user: { userId: string; email: string; role: string } },
   ) {
     return { message: 'You are an OWNER, welcome.', user: req.user };
+  }
+
+  @UseGuards(AuthGuard('google'))
+  @Get('google')
+  google() {
+
+  }
+
+  @UseGuards(AuthGuard('google'))
+  @Get('google/callback')
+  googleCallback(
+    @Request() req: { user: { email: string; name: string } },
+  ) {
+    return this.authService.validateOAuthLogin(req.user);
   }
 }

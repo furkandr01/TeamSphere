@@ -23,6 +23,32 @@ export class AuthService {
     private readonly redis: RedisService,
   ) {}
 
+  async validateOAuthLogin(googleProfile: { email: string; name: string }) {
+  let user = await this.usersService.findByEmail(googleProfile.email);
+
+  if (!user) {
+    const randomPassword = await bcrypt.hash(crypto.randomBytes(32).toString('hex'), 10);
+
+    const organization = await this.prisma.organization.create({
+      data: {
+        name: `${googleProfile.name}'s Organization`,
+        slug: `${googleProfile.name.toLowerCase().replace(/\s+/g, '-')}-${Date.now()}`,
+      },
+    });
+
+    user = await this.usersService.create({
+      email: googleProfile.email,
+      password: randomPassword,
+      name: googleProfile.name,
+      organizationId: organization.id,
+      role: 'OWNER',
+    });
+  }
+
+  return this.issueTokens(user.id, user.email, user.role);
+}
+
+
   async register(dto: RegisterDto) {
     const existing = await this.usersService.findByEmail(dto.email);
     if (existing) {
