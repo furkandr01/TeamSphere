@@ -2,7 +2,10 @@ import { Injectable, OnModuleDestroy, OnModuleInit } from '@nestjs/common';
 import Redis from 'ioredis';
 
 @Injectable()
-export class RedisService extends Redis implements OnModuleInit, OnModuleDestroy {
+export class RedisService
+  extends Redis
+  implements OnModuleInit, OnModuleDestroy
+{
   constructor() {
     super(process.env.REDIS_URL ?? 'redis://localhost:6379');
   }
@@ -12,6 +15,6 @@ export class RedisService extends Redis implements OnModuleInit, OnModuleDestroy
   }
 
   async onModuleDestroy() {
-    this.disconnect();
+    await this.quit();
   }
 }

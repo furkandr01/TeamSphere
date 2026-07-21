@@ -1,4 +1,8 @@
-import { ConflictException, Injectable, UnauthorizedException } from '@nestjs/common';
+import {
+  ConflictException,
+  Injectable,
+  UnauthorizedException,
+} from '@nestjs/common';
 import * as crypto from 'crypto';
 import * as bcrypt from 'bcrypt';
 import { JwtService } from '@nestjs/jwt';
@@ -75,12 +79,17 @@ export class AuthService {
     return this.issueTokens(user.id, user.email, user.role);
   }
 
-  private async issueTokens(userId: string, email: string, role:string) {
+  private async issueTokens(userId: string, email: string, role: string) {
     const payload = { sub: userId, email, role };
     const accessToken = await this.jwtService.signAsync(payload);
 
     const refreshToken = crypto.randomBytes(64).toString('hex');
-    await this.redis.set(`refresh:${refreshToken}`, userId, 'EX', REFRESH_TOKEN_TTL_SECONDS);
+    await this.redis.set(
+      `refresh:${refreshToken}`,
+      userId,
+      'EX',
+      REFRESH_TOKEN_TTL_SECONDS,
+    );
 
     return { accessToken, refreshToken };
   }
