@@ -1,11 +1,5 @@
-import {
-  Body,
-  Controller,
-  Get,
-  Post,
-  Request,
-  UseGuards,
-} from '@nestjs/common';
+import { Body, Controller, Get, Post, Request, Res, UseGuards } from '@nestjs/common';
+import type { Response } from 'express';
 import { AuthService } from './auth.service';
 import { RegisterDto } from './dto/register.dto';
 import { LoginDto } from './dto/login.dto';
@@ -17,7 +11,7 @@ import { AuthGuard } from '@nestjs/passport';
 
 @Controller('auth')
 export class AuthController {
-  constructor(private readonly authService: AuthService) {}
+  constructor(private readonly authService: AuthService) { }
 
   @Post('register')
   register(@Body() dto: RegisterDto) {
@@ -59,9 +53,12 @@ export class AuthController {
 
   @UseGuards(AuthGuard('google'))
   @Get('google/callback')
-  googleCallback(
+  async googleCallback(
     @Request() req: { user: { email: string; name: string } },
+    @Res() res: Response,
   ) {
-    return this.authService.validateOAuthLogin(req.user);
+    const tokens = await this.authService.validateOAuthLogin(req.user);
+    const frontendUrl = `http://localhost:3000/auth/callback?accessToken=${tokens.accessToken}&refreshToken=${tokens.refreshToken}`;
+    res.redirect(frontendUrl);
   }
 }
