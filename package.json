@@ -1,8 +1,13 @@
 {
     "name": "team-sphere",
-    "private" : true,
-    "workspaces" :[
+    "private": true,
+    "workspaces": [
         "apps/*",
         "packages/*"
-    ]
+    ],
+    "devDependencies": {
+        "@types/jest": "^30.0.0",
+        "jest": "^30.4.2",
+        "ts-jest": "^29.4.12"
+    }
 }
